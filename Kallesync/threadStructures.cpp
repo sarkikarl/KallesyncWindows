@@ -1,0 +1,6 @@
+
+
+bool InitThreads() {
+
+    return true;
+};

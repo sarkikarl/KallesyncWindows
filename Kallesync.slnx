@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="Kallesync/Kallesync.vcxproj" Id="1f1042dc-261e-4d7e-b436-88ae32bfd942" />
+</Solution>
