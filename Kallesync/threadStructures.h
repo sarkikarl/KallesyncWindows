@@ -1,45 +1,34 @@
 #pragma once
+#include <atomic>
+#include <cstdint>
 
-template <typename T>
-uint32_t DataSize() {
-	return sizeof(T) - sizeof(uint32_t);
-}
+//=============================================================================
+// SWAP BUFFER - internal, not sent over wire
+//=============================================================================
 
-struct kbm {
-	int x, y;
+template<typename T>
+struct SwapBuffer {
+    T buf[2];
+    std::atomic<int> idx{ 0 };
+
+    T* back() { return &buf[1 - idx.load()]; }
+    void swap() { idx.store(1 - idx.load()); }
+    const T* front() { return &buf[idx.load()]; }
 };
 
-struct audioData {
-	uint32_t SAMPLE_RATE;
-	uint16_t CHANNELS;
-	uint16_t BITS_PER_SAMPLE;
-	uint32_t FRAMES_PER_PACKET;
-};
+//=============================================================================
+// Include wire formats
+//=============================================================================
 
-struct mainTData {
-	POINT LinXY;
-	uint32_t KbmTC;
-	uint32_t KbmTS;
-	uint32_t audioPort;
-	uint32_t cbCport;
-	uint32_t cbSport;
-	uint32_t displayPort;
-};
+#include "protocol.h"
 
-const struct ThreadData {
-	kbm* kbmIn;
-	audioData* audio;
-	mainTData* main;
-	uint32_t size = DataSize<ThreadData>();
-};
+//=============================================================================
+// GLOBALS
+//=============================================================================
 
+extern SwapBuffer<KbmData> g_kbm;
+extern SwapBuffer<AudioData> g_audio;
+extern SwapBuffer<CaptureData> g_capture;
+extern SwapBuffer<LinuxData> g_linux;
 
-struct ThreadSignals {
-	ThreadData* Data;
-	bool* Signals;
-	uint32_t size = DataSize<ThreadSignals>();
-};
-
-
-
-bool InitThreads();
+void InitThreadStructures();

@@ -16,6 +16,7 @@
 #include <thread>
 #include "audio.h"
 #include "Telementry.h"
+#include "config.h"
 /// <summary>
 /// currently whitish bar stopped after resetting scaling on ubuntu aint sure what happened
 /// </summary>
@@ -584,28 +585,19 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
         CleanupDirectX();
         return 1;
     }
-    POINT LinXY;
-    LinXY.x = 1920;
-    LinXY.y = 1080;
-    char LinIP[] = "192.168.1.69";
-    uint32_t KbmTC = 55079;
-    uint32_t KbmTS = 55080;
-    uint32_t audioPort = 55069;
-    uint32_t cbCport = 55054;
-    uint32_t cbSport = 55055;
-    uint32_t displayPort = 55059;
+    InitConfig();
     
-    UdpVeiwPort(displayPort);  //Starts IOCP workers, returns immediately
+    UdpVeiwPort();  //Starts IOCP workers, returns immediately
 
-    StartViewportTracker(GetViewportHWND());//for mouse tracking start before mouse
+    StartViewportTracker(GetViewportHWND());//for mouse tracking start before KbmHook
 
-    std::thread KBMT(StartKbmHook, LinXY.x, LinXY.y);
+    std::thread KBMT(StartKbmHook);
     KBMT.detach();
-    std::thread audio_t(audio, &audio_running, audioPort);
+    std::thread audio_t(audio);
     audio_t.detach();
-    std::thread tele_t(Telemain, LinIP, KbmTS, KbmTC);
+    std::thread tele_t(Telemain);
     tele_t.detach();
-    std::cout << "pass tele thread port: " << KbmTS << "port1: " << KbmTC << "\n";
+    std::cout << "pass tele thread port: " << "port1\n";
    
 
     for (;;) {

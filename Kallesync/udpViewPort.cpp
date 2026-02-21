@@ -1,3 +1,5 @@
+#include "config.h"
+#include "threadStructures.h"
 #include <iostream>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -284,7 +286,7 @@ bool winsockStart() {
     return true;
 }
 
-int UdpVeiwPort(int port) {
+int UdpVeiwPort() {
     if (!winsockStart()) {
         return 1;
     }
@@ -319,7 +321,7 @@ int UdpVeiwPort(int port) {
     sockaddr_in serverHint;
     serverHint.sin_family = AF_INET;
     serverHint.sin_addr.S_un.S_addr = ADDR_ANY;
-    serverHint.sin_port = htons(port);
+    serverHint.sin_port = htons(g_config->displayPort);
     if (bind(sock, (sockaddr*)&serverHint, sizeof(serverHint)) == SOCKET_ERROR) {
         cout << "Can't bind socket: " << WSAGetLastError() << endl;
         closesocket(sock);

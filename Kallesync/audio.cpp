@@ -1,3 +1,5 @@
+#include "config.h"
+#include "threadStructures.h"
 #include "Audio.h"
 #include <iostream>
 #include <ws2tcpip.h>
@@ -20,7 +22,7 @@ constexpr size_t FRAMES_PER_PACKET = 240;
 constexpr size_t BYTES_PER_FRAME = CHANNELS * (BITS_PER_SAMPLE / 8);
 constexpr size_t BUFFER_SIZE = FRAMES_PER_PACKET * BYTES_PER_FRAME;
 
-void audio(std::atomic<bool>* running, uint16_t port) {
+void audio() {
     WSADATA data;
     WORD version = MAKEWORD(2, 2);
     int wsOK = WSAStartup(version, &data);
@@ -37,7 +39,7 @@ void audio(std::atomic<bool>* running, uint16_t port) {
     sockaddr_in serverHint;
     serverHint.sin_addr.S_un.S_addr = ADDR_ANY;
     serverHint.sin_family = AF_INET;
-    serverHint.sin_port = htons(port);
+    serverHint.sin_port = htons(g_config->audioPort);
     if (bind(in, (sockaddr*)&serverHint, sizeof(serverHint)) == SOCKET_ERROR) {
         closesocket(in);
         WSACleanup();
@@ -132,7 +134,7 @@ void audio(std::atomic<bool>* running, uint16_t port) {
 
     int16_t recvBuffer[FRAMES_PER_PACKET * CHANNELS];
 
-    while (running->load()) {
+    while(true) {
         ZeroMemory(recvBuffer, BUFFER_SIZE);
 
         int bytesIn = recvfrom(in, reinterpret_cast<char*>(recvBuffer), BUFFER_SIZE, 0, nullptr, nullptr);

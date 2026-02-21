@@ -4,6 +4,6 @@
 #include <cstdint>
 #include <atomic>
 
-void audio(std::atomic<bool>* running, uint16_t port);
+void audio();
 
 #endif

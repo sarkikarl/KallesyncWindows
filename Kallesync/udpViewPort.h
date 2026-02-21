@@ -1,5 +1,5 @@
 #pragma once
 
-int UdpVeiwPort(int port);
+int UdpVeiwPort();
 
 void ConsumePackets(int max_packets = 64);

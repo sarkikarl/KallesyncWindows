@@ -139,11 +139,13 @@
     <ClInclude Include="chacha12_crypt.hpp" />
     <ClInclude Include="chacha20_poly1305.hpp" />
     <ClInclude Include="ChaChaHelpers.h" />
+    <ClInclude Include="config.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Kallesync.h" />
     <ClInclude Include="kbm.h" />
     <ClInclude Include="key_manager.hpp" />
     <ClInclude Include="packet_pipeline.h" />
+    <ClInclude Include="protocol.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="rolling_key.hpp" />
     <ClInclude Include="swapPoint.h" />
@@ -159,6 +161,7 @@
   <ItemGroup>
     <ClCompile Include="audio.cpp" />
     <ClCompile Include="ChaChaHelpers.cpp" />
+    <ClCompile Include="config.cpp" />
     <ClCompile Include="Kallesync.cpp" />
     <ClCompile Include="kbm.cpp" />
     <ClCompile Include="packet_pipeline.cpp" />
