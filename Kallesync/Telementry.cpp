@@ -4,6 +4,8 @@
 #include "udpClient.h"
 #include "udpServer.h"
 #include <cstring>
+#include <chrono>
+#include <thread>
 
 void Telemain() {
     udpServer server = udpServerStart("any", g_config->kbmRecvPort, 1024);
@@ -14,9 +16,11 @@ void Telemain() {
 
     while (true) {
         // GATHER
+        std::this_thread::sleep_for(std::chrono::milliseconds(14));
         memcpy(&outgoing.kbm, g_kbm.front(), sizeof(KbmData));
         memcpy(&outgoing.audio, g_audio.front(), sizeof(AudioData));
         memcpy(&outgoing.capture, g_capture.front(), sizeof(CaptureData));
+        
 
         // SEND
         udpSend(reinterpret_cast<const char*>(&outgoing), sizeof(outgoing), client);

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <Windows.h>
-
+#include <atomic>
 //=============================================================================
 // GLOBALS
 //=============================================================================
@@ -14,8 +14,8 @@ static HHOOK g_keyboardHook = NULL;
 static HHOOK g_mouseHook = NULL;
 static POINT lastPosition = { 0, 0 };
 static DWORD lastSwapTime = 0;
-const DWORD SWAP_INTERVAL_MS = 8;  // ~120Hz publish rate
-
+const DWORD SWAP_INTERVAL_MS = 8;//8;  // ~120Hz publish rate
+static std::atomic<int32_t> g_pendingWheelDelta{ 0 };
 //=============================================================================
 // KEY MAPPING
 //=============================================================================
@@ -78,13 +78,12 @@ static int GetLinuxKeyCode(int winVkCode) {
 static void TrySwap() {
     DWORD now = GetTickCount64();
     if (now - lastSwapTime >= SWAP_INTERVAL_MS) {
+        // Grab accumulated wheel delta before swap
+        g_kbm.back()->wheelDelta = g_pendingWheelDelta.exchange(0);
+
         g_kbm.swap();
-
-        // Copy current state to new back buffer as baseline
         *g_kbm.back() = *g_kbm.front();
-
-        // Reset event-based fields only
-        g_kbm.back()->wheelDelta = 0;
+        g_kbm.back()->wheelDelta = 0;  // Don't carry over
 
         lastSwapTime = now;
     }
@@ -121,7 +120,6 @@ LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
     if (nCode == HC_ACTION && IsViewportActive()) {
         MSLLHOOKSTRUCT* pMouse = (MSLLHOOKSTRUCT*)lParam;
         KbmData* kbm = g_kbm.back();
-
         // Handle buttons
         int btnIdx = -1;
         bool btnDown = false;
@@ -141,7 +139,7 @@ LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
             break;
         }
         case WM_MOUSEWHEEL:
-            kbm->wheelDelta = GET_WHEEL_DELTA_WPARAM(pMouse->mouseData);
+            g_pendingWheelDelta.fetch_add(GET_WHEEL_DELTA_WPARAM(pMouse->mouseData));
             break;
         }
 
